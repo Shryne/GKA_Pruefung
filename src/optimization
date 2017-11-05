@@ -1,0 +1,8 @@
+Optimierungsmöglichkeiten:
+
+1. Vertexe in OK Liste packen und bei True entfernen, Aus Entf auch entfernen, Es werden vorab keine leeren Tabellen erzeugt
+2. Graph.delete
+3. Graph.set&get
+4. MinTree
+5. Iteration Thread, Tree Thread
+6. Incident Thread

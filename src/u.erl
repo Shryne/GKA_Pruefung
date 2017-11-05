@@ -10,4 +10,12 @@
 -author("Steven").
 
 %% API
--export([]).
+-compile(export_all).
+
+print(List) -> util:logging("Log", lists:concat([List, "\n"])).
+
+measure(F) ->
+  B = now(),
+  V = F(),
+  A = now(),
+  {timer:now_diff(A,B), V}.

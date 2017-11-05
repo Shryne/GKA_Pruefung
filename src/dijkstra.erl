@@ -17,8 +17,9 @@ dijkstra(Filename, _StartVertex, d) ->
   Graph = to_graph(Filename, d),
   dijkstra_pre(Graph);
 
-dijkstra(_Filename, _StartVertex, ud) ->
-  nil.
+dijkstra(Filename, _StartVertex, ud) ->
+  Graph = to_graph(Filename, ud),
+  dijkstra_pre(Graph).
 
 to_graph(FileName, Variant) ->
   adtgraph:importG(FileName, Variant).
