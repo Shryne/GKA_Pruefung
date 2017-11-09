@@ -9,12 +9,13 @@
 -module(dijkstra).
 -author("Steven").
 
--include("Definitions.hrl").
+-include("definitions.hrl").
 
 -define(MEASUREMENT_FOLDERS, lists:append(?MEASUREMENT_FOLDER, "/dijkstra/")).
 -define(LOG_FOLDERS, lists:append(?LOGGING_FOLDER, "/dijkstra/")).
 -define(MEASUREMENT_FILE_TYPE, ".csv").
 -define(LOG_FILE_TYPE, ".log").
+-define(INPUT_TYPE, "\\.graph").
 
 -export([dijkstra/3]).
 
@@ -23,17 +24,8 @@ dijkstra(FileName, StartVertex, ud) -> dijkstra_(FileName, StartVertex, ud);
 dijkstra(FileName, StartVertex, _) -> dijkstra_(FileName, StartVertex, nil).
 
 dijkstra_(FileName, StartVertex, Variant) ->
-  HasFolder = lists:any(fun(Elem) -> Elem == "/" end, FileName),
-  GraphName =
-    if
-    HasFolder -> % Filters the folders from the filename
-      lists:dropwhile(fun(_) ->
-        lists:any(fun(Elem) -> Elem == "/", FileName end, FileName) end,
-        FileName
-      );
-    true -> FileName
-    end,
-
+  GraphName = graph_name(FileName),
+  io:fwrite(lists:append(GraphName, "\n")),
   MeasurementPath = lists:append([?MEASUREMENT_FOLDERS, GraphName, ?MEASUREMENT_FILE_TYPE]),
   LogPath = lists:append([?LOG_FOLDERS, GraphName, ?LOG_FILE_TYPE]),
   filelib:ensure_dir(?MEASUREMENT_FOLDERS),
@@ -44,13 +36,30 @@ dijkstra_(FileName, StartVertex, Variant) ->
   u:log(LogPath, [
     "Dijkstra start mit FileName: ", util:to_String(FileName),
     " StartVertex: ", util:to_String(StartVertex),
-    " Variant: ", util:to_String(Variant)
+    " Variant: ", util:to_String(Variant),
+    " Graphname: ", util:to_String(GraphName)
   ]
   ),
   Graph = adtgraph:importG(FileName, Variant),
 
   u:log(LogPath, ["Folgenden Graph geladen:\n", util:list2string(adtgraph:getVertexes(Graph)), "\n"]),
   measured(LogPath, MeasurementPath, StartVertex, Graph).
+
+% Extracts the name of the graph from the file name.
+% "bla/bla2/stuff -> stuff
+% "blabla2stuff -> blabla2stuff
+% "bla/bla2/stuff.graph -> stuff
+graph_name(FileName) ->
+  WithoutPath = graph_name_(lists:reverse(FileName), []),
+  drop_type(lists:reverse(WithoutPath)).
+
+graph_name_([], Result) -> Result;
+graph_name_([$/|_], Result) -> Result;
+graph_name_([H|R], Result) -> graph_name_(R, [H|Result]).
+
+% No idea, how to parameterize that...
+drop_type([$h, $p, $a, $r, $g, $.|R]) -> lists:reverse(R);
+drop_type(GraphName) -> lists:reverse(GraphName).
 
 % Case: Graph couldn't be loaded. This would result in empty OK, ... lists and there wouldn't be any calculation to be
 % done.

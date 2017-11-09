@@ -24,7 +24,7 @@ measure(FileName, Function, Amount) ->
   log(FileName,
     ["Measurements done. Avg: ", util:to_String(All / Amount), ", Best: ", util:to_String(Best), ", Worst: ", util:to_String(Worst)]
   ),
-  done.
+  finished.
 
 measure_(_, _, Result, Best, Worst, 0) -> {Result, Best, Worst};
 measure_(FileName, Function, Result, Best, Worst, Amount) ->
