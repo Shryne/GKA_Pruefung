@@ -6,3 +6,19 @@ Optimierungsmöglichkeiten:
 4. MinTree
 5. Iteration Thread, Tree Thread
 6. Incident Thread
+
+
+
+
+
+---------
+- statt d, ud etwas anderes
+- fehlerhaftes FileName -> leerer Graph
+- nicht vorhandender StartVertex
+- insgesamt leerer Graph
+- Ein Graph mit einem Element
+- Ein Graph ohne unique
+- negative Kanten
+- zusammenhanglose Graphen
+- funktioniert im Pfad auch "\" statt "/"
+- Uhrzeit bei logging und Messung anzeigen?

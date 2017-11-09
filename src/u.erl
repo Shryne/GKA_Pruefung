@@ -5,38 +5,34 @@
 %%%
 %%% @end
 %%% Created : 02. Nov 2017 23:48
+%%% TODO: fix now() depreacation
 %%%-------------------------------------------------------------------
 -module(u).
 -author("Steven").
 
--define(MEASURE_FILE_NAME, "measurement.log").
-
 %% API
 -compile(export_all).
 
-print(Name, List) -> util:logging(Name, lists:concat([List, "\n"])).
+log(Name, List) -> util:logging(Name, lists:concat([util:to_String(List), "\n"])).
 
+% Function to measure the time needed to complete the given function.
+% Use: measure(fun() -> ... end[, number]).
+measure(FileName, Function) -> measure(FileName, Function, 1).
+measure(FileName, Function, Amount) ->
+  file:delete(FileName),
+  {All, Best, Worst} = measure_(FileName, Function, 0, inf, 0, Amount),
+  log(FileName,
+    ["Measurements done. Avg: ", util:to_String(All / Amount), ", Best: ", util:to_String(Best), ", Worst: ", util:to_String(Worst)]
+  ),
+  done.
 
-measure(Function, Amount) ->
-  {Best, Worst, All} = measure_(Function, 0, inf, 0, Amount),
-  print(?MEASURE_FILE_NAME,
-    ["Measurements done. Avg: ", All / Amount, ", Best: ", Best, ", Worst: ", Worst]
-  ).
-
-measure_(_, Result, 0) -> Result.
-measure_(Function, Result, Best, Worst, Amount) ->
-  print(?MEASURE_FILE_NAME,
+measure_(_, _, Result, Best, Worst, 0) -> {Result, Best, Worst};
+measure_(FileName, Function, Result, Best, Worst, Amount) ->
+  log(FileName,
     ["Measurement number ", util:to_String(Amount), " starting..."]
   ),
-  {_, Time} = measure(Function),
-  measure_(Function, Result + Time, min(Best, Time), max(Worst, Time), Amount - 1).
-
-measure(Function) ->
   Start = now(),
-  FunctionResult = Function(),
-  End = now(),
-  Time = timer:now_diff(End, Start),
-  print(?MEASURE_FILE_NAME,
-    ["Measurement result: ", FunctionResult, " after ", Time]
-  ),
-  {FunctionResult, Time}.
+  Function(),
+  Time = timer:now_diff(now(), Start),
+  measure_(FileName, Function, Result + Time, min(Best, Time), max(Worst, Time), Amount - 1).
+
