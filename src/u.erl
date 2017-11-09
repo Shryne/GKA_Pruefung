@@ -13,7 +13,7 @@
 %% API
 -compile(export_all).
 
-log(Name, List) -> util:logging(Name, lists:concat([util:to_String(List), "\n"])).
+log(Name, List) -> util:logging(Name, lists:flatten([List, "\n"])).
 
 % Function to measure the time needed to complete the given function.
 % Use: measure(fun() -> ... end[, number]).
@@ -36,3 +36,7 @@ measure_(FileName, Function, Result, Best, Worst, Amount) ->
   Time = timer:now_diff(now(), Start),
   measure_(FileName, Function, Result + Time, min(Best, Time), max(Worst, Time), Amount - 1).
 
+% Like util:list2string, but without the "\n" character at the end.
+% I removed the list from the name, because that's the type of the parameter anyway and that's nothing hidden.
+toString([]) -> "";
+toString([H|T]) -> lists:concat([H, " ", toString(T)]).

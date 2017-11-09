@@ -42,9 +42,9 @@ dijkstra_(FileName, StartVertex, Variant) ->
   file:delete(MeasurementPath),
 
   u:log(LogPath, [
-    "Dijkstra start mit FileName: ", FileName,
+    "Dijkstra start mit FileName: ", util:to_String(FileName),
     " StartVertex: ", util:to_String(StartVertex),
-    " Variant: ", Variant
+    " Variant: ", util:to_String(Variant)
   ]
   ),
   Graph = adtgraph:importG(FileName, Variant),
@@ -54,20 +54,29 @@ dijkstra_(FileName, StartVertex, Variant) ->
 
 % Case: Graph couldn't be loaded. This would result in empty OK, ... lists and there wouldn't be any calculation to be
 % done.
-measured(_, _, _, {[], [], []}) -> {[], [], []};
+measured(_, _, _, {{}, [], []}) -> {[], [], []};
 measured(LogPath, MeasurementPath, StartVertex, Graph) ->
   u:log(LogPath, ["Korrekten Graph erhalten"]),
   u:measure(MeasurementPath,
     fun() ->
       u:log(LogPath, ["Starte Messung"]),
       % I swap the StartVertex from pos x to the front, because that way it's much easier to create the
-      % OK... lists with the special initialization for the StartVertex.
-      Vertices = lists:append([StartVertex], lists:delete(StartVertex, adtgraph:getVertexes(Graph))),
+      % OK... lists with the special initialization for the StartVertex. If the StartVertex isn't inside
+      % the graph, the first Vertex of the Graph is assumed to be the StartVertex
+      Vertices = startVertexAtFront(Graph, StartVertex),
       {OK, Entf, Vorg} = preparation(LogPath, Vertices),
       iteration(LogPath, Graph, Vertices, OK, Entf, Vorg)
     end,
     1
   ).
+
+startVertexAtFront(Graph, StartVertex) ->
+  Vertices = adtgraph:getVertexes(Graph),
+  HasVertex = lists:any(fun(Elem) -> Elem == StartVertex end, Vertices),
+  if
+    HasVertex -> lists:append([StartVertex], lists:delete(StartVertex, Vertices));
+    true -> Vertices
+  end.
 
 % The StartVertex must be the head of the given list, because the other lists depend on it and they put the
 % initialization for it in the head, too.
@@ -89,19 +98,18 @@ preparation(LogPath, Vertices) ->
   u:log(LogPath, ["Graph enthält ", util:to_String(VertexAmount), " Anzahl von Vertices"]),
   {OK, Entf, Vorg}.
 
-% === Iteration
 iteration(LogPath, Graph, Vertices, OK, Entf, Vorg) ->
   u:log(LogPath, ["--------------ITER--------------"]),
-  u:log(LogPath, ["OK: ", util:list2string(OK)]),
-  u:log(LogPath, ["Entf: ", util:list2string(Entf)]),
-  u:log(LogPath, ["Vorg: ", util:list2string(Vorg)]),
+  u:log(LogPath, ["OK: ", u:toString(OK)]),
+  u:log(LogPath, ["Entf: ", u:toString(Entf)]),
+  u:log(LogPath, ["Vorg: ", u:toString(Vorg)]),
 
   {H, Entfh} = ok_min(OK, Entf, inf, 0, inf),
   u:log(LogPath, ["H ist: ", util:to_String(H), " mit Entf ", util:to_String(Entf)]),
 
   u:log(LogPath, ["Setze OK für neues H auf true"]),
   NewOK = ok_true(OK, [], H, 0),
-  u:log(LogPath, ["Neues OK: ", util:list2string(NewOK)]),
+  u:log(LogPath, ["Neues OK: ", u:toString(NewOK)]),
 
   u:log(LogPath, ["dijkstra_distance"]),
   {NewEntf, NewVorg} = distance(LogPath, Graph, Vertices,
@@ -131,7 +139,7 @@ distance(_, _, _, [], Entf, Vorg, _, _, _) -> {Entf, Vorg};
 distance(LogPath, Graph, Vertices, [VertexI|Adjacent], Entf, Vorg, OK, VertexH, Entfh) ->
   AdjacentIndex = index_of(VertexI, Vertices),
   u:log(LogPath, ["AdjacentIndex: ", util:to_String(AdjacentIndex)]),
-  u:log(LogPath, ["Vertices: ", util:list2string(Vertices)]),
+  u:log(LogPath, ["Vertices: ", u:toString(Vertices)]),
   OKElem = get(OK, AdjacentIndex),
 
   if
@@ -150,8 +158,8 @@ distance(LogPath, Graph, Vertices, [VertexI|Adjacent], Entf, Vorg, OK, VertexH, 
           NewEntf = set(Entf, AdjacentIndex, Entfh + Lhj),
           % === Setze Vorgj := h
           NewVorg = set(Vorg, AdjacentIndex, VertexH),
-          u:log(LogPath, ["NewEntf: ", util:list2string(NewEntf)]),
-          u:log(LogPath, ["NewVorg: ", util:list2string(NewVorg)]),
+          u:log(LogPath, ["NewEntf: ", u:toString(NewEntf)]),
+          u:log(LogPath, ["NewVorg: ", u:toString(NewVorg)]),
           distance(LogPath, Graph, Vertices, Adjacent, NewEntf, NewVorg, OK, VertexH, Entfh);
         true ->
           distance(LogPath, Graph, Vertices, Adjacent, Entf, Vorg, OK, VertexH, Entfh)
