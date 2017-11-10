@@ -1,0 +1,23 @@
+file name to log file name:
+("graphen") -> "graphen.log"
+("graphen/graph") -> "graph.log"
+("graphen.graph") -> "graphen.graph.log"
+("graphen/bla/graph/graph") -> "graph.log"
+(".graphgraph.graph") -> ".graphgraph.log"
+("graphen/graph_.graph") -> "graph_.log"
+
+=> Für alle gleich, nur das der Zielordner vom eigenen Modulnamen abhängt.
+
+graph to result:
+(empty graph) -> []
+([11]) -> [{11, 0, 11}]
+
+
+
+------------------
+Die .csv Tabelle soll wie folgt aussehen:
+
+Modulname
+
+Graph; Vertexanzahl; Zeit
+name;num;num
