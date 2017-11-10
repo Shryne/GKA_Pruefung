@@ -25,7 +25,6 @@ dijkstra(FileName, StartVertex, _) -> dijkstra_(FileName, StartVertex, nil).
 
 dijkstra_(FileName, StartVertex, Variant) ->
   GraphName = graph_name(FileName),
-  io:fwrite(lists:append(GraphName, "\n")),
   MeasurementPath = lists:append([?MEASUREMENT_FOLDERS, GraphName, ?MEASUREMENT_FILE_TYPE]),
   LogPath = lists:append([?LOG_FOLDERS, GraphName, ?LOG_FILE_TYPE]),
   filelib:ensure_dir(?MEASUREMENT_FOLDERS),
@@ -42,7 +41,7 @@ dijkstra_(FileName, StartVertex, Variant) ->
   ),
   Graph = adtgraph:importG(FileName, Variant),
 
-  u:log(LogPath, ["Folgenden Graph geladen:\n", util:list2string(adtgraph:getVertexes(Graph)), "\n"]),
+  u:log(LogPath, ["Folgenden Graph geladen:\n", util:list2string(adtgraph:getVertexes(Graph))]),
   measured(LogPath, MeasurementPath, StartVertex, Graph).
 
 % Extracts the name of the graph from the file name.
@@ -113,7 +112,8 @@ iteration(LogPath, Graph, Vertices, OK, Entf, Vorg) ->
   u:log(LogPath, ["Entf: ", u:toString(Entf)]),
   u:log(LogPath, ["Vorg: ", u:toString(Vorg)]),
 
-  {H, Entfh} = ok_min(OK, Entf, inf, 0, inf),
+  % Note: zzz is greater than infinite
+  {H, Entfh} = ok_min(OK, Entf, zzz, 0, zzz),
   u:log(LogPath, ["H ist: ", util:to_String(H), " mit Entf ", util:to_String(Entf)]),
 
   u:log(LogPath, ["Setze OK für neues H auf true"]),
@@ -133,6 +133,7 @@ iteration(LogPath, Graph, Vertices, OK, Entf, Vorg) ->
 % === Suche unter den Ecken vi mit OKi = false eine Ecke vh mit dem kleinsten Wert von Entfi
 % Searches the seconds list for the smallest element that is false based on the first list and returns its index and
 % value.
+% Case: No result was found, because all are infinite.
 ok_min([], [], _, _, Result) -> Result;
 ok_min([false|RestOK], [Entfi|RestEntf], Min, I, _) when Min > Entfi ->
   ok_min(RestOK, RestEntf, Entfi, I + 1, {I, Entfi});
