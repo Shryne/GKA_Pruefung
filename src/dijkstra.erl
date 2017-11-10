@@ -103,17 +103,19 @@ preparation(LogPath, Vertices) ->
   % false.
   OK = lists:duplicate(VertexAmount, false),
 
-  u:log(LogPath, ["Graph enthält ", util:to_String(VertexAmount), " Anzahl von Vertices"]),
+  u:log(LogPath, ["Graph enthält ", util:to_String(VertexAmount), " Vertices"]),
   {OK, Entf, Vorg}.
 
-iteration(LogPath, Graph, Vertices, OK, Entf, Vorg) ->
+iteration(LogPath, Graph, Vertices, OK, Entf, Vorg, Result) ->
   u:log(LogPath, ["--------------ITER--------------"]),
   u:log(LogPath, ["OK: ", u:toString(OK)]),
   u:log(LogPath, ["Entf: ", u:toString(Entf)]),
   u:log(LogPath, ["Vorg: ", u:toString(Vorg)]),
 
-  % Note: zzz is greater than infinite
-  {H, Entfh} = ok_min(OK, Entf, zzz, 0, zzz),
+  % Note: zzz is greater than infinite and seems to be a suitable initial value. Otherwise I would have to take the
+  % first value of Entf as min, but I would need to check OK and that
+  {H, Entfh, Vorgh} = ok_min(OK, Entf, zzz, 0, zzz, -1),
+  VertexH = get(Vertices, H),
   u:log(LogPath, ["H ist: ", util:to_String(H), " mit Entf ", util:to_String(Entf)]),
 
   u:log(LogPath, ["Setze OK für neues H auf true"]),
@@ -122,12 +124,12 @@ iteration(LogPath, Graph, Vertices, OK, Entf, Vorg) ->
 
   u:log(LogPath, ["dijkstra_distance"]),
   {NewEntf, NewVorg} = distance(LogPath, Graph, Vertices,
-    adtgraph:getAdjacent(Graph, get(Vertices, H)), Entf, Vorg, OK, get(Vertices, H), Entfh
+    adtgraph:getAdjacent(Graph, get(Vertices, H)), Entf, Vorg, OK, VertexH, Entfh
   ),
   AllTrue = lists:all(fun(Elem) -> Elem == true end, NewOK),
   if
     AllTrue -> {NewEntf, NewVorg, NewOK};
-    true -> iteration(LogPath, Graph, Vertices, NewOK, NewEntf, NewVorg)
+    true -> iteration(LogPath, Graph, Vertices, NewOK, NewEntf, NewVorg, [{VertexH, Entfh, Vorgh}])
   end.
 
 % === Suche unter den Ecken vi mit OKi = false eine Ecke vh mit dem kleinsten Wert von Entfi

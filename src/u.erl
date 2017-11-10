@@ -20,21 +20,21 @@ log(Name, List) -> util:logging(Name, lists:flatten([List, "\n"])).
 measure(FileName, Function) -> measure(FileName, Function, 1).
 measure(FileName, Function, Amount) ->
   file:delete(FileName),
-  {All, Best, Worst} = measure_(FileName, Function, 0, inf, 0, Amount),
+  {FResult, All, Best, Worst} = measure_(FileName, Function, nothing, 0, inf, 0, Amount),
   log(FileName,
     ["Measurements done. Avg: ", util:to_String(All / Amount), ", Best: ", util:to_String(Best), ", Worst: ", util:to_String(Worst)]
   ),
-  finished.
+  FResult.
 
-measure_(_, _, Result, Best, Worst, 0) -> {Result, Best, Worst};
-measure_(FileName, Function, Result, Best, Worst, Amount) ->
+measure_(_, _, FResult, Result, Best, Worst, 0) -> {FResult, Result, Best, Worst};
+measure_(FileName, Function, _, Result, Best, Worst, Amount) ->
   log(FileName,
     ["Measurement number ", util:to_String(Amount), " starting..."]
   ),
   Start = now(),
-  Function(),
+  FResult = Function(),
   Time = timer:now_diff(now(), Start),
-  measure_(FileName, Function, Result + Time, min(Best, Time), max(Worst, Time), Amount - 1).
+  measure_(FileName, Function, FResult, Result + Time, min(Best, Time), max(Worst, Time), Amount - 1).
 
 % Like util:list2string, but without the "\n" character at the end.
 % I removed the list from the name, because that's the type of the parameter anyway and that's nothing hidden.
