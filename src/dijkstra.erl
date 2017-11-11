@@ -73,7 +73,7 @@ measured(LogPath, MeasurementPath, StartVertex, Graph) ->
       % the graph, the first Vertex of the Graph is assumed to be the StartVertex
       Vertices = startVertexAtFront(Graph, StartVertex),
       {OK, Entf, Vorg} = preparation(LogPath, Vertices),
-      iteration(LogPath, Graph, Vertices, OK, Entf, Vorg)
+      iteration(LogPath, Graph, Vertices, OK, Entf, Vorg, [])
     end,
     1
   ).
@@ -89,16 +89,17 @@ startVertexAtFront(Graph, StartVertex) ->
 % The StartVertex must be the head of the given list, because the other lists depend on it and they put the
 % initialization for it in the head, too.
 % === Vorbereitung
-preparation(LogPath, Vertices) ->
+preparation(LogPath, [Start|Rest]) ->
   u:log(LogPath, ["--------------PRE--------------"]),
-  VertexAmount = length(Vertices),
+  VertexAmount = length(Rest) + 1,
 
   % === Entfi gibt die bisher festgestellte kürzeste Entfernung von v1 nach vi an. Der Startwert ist 0 für i = 1 und inf
   % sonst.
   Entf = [0|lists:duplicate(VertexAmount - 1, infinite)],
   % === Vorgi gibt den Vorgänger von vi auf dem bisher kürzesten Weg von v1 nach vi an. Der Startwert ist v1 für i = 1
-  % und undefiniert sonst.
-  Vorg = [0|lists:duplicate(VertexAmount - 1, undef)],
+  % und undefiniert sonst. ANMERKUNG: Statt wie im Pseudocode angegeben Indizes zu benutzen, werden hier die eindeutigen
+  % Vertex-IDs benutzt.
+  Vorg = [Start|lists:duplicate(VertexAmount - 1, undef)],
   % === OKi gibt an, ob die kürzeste Entfernung von v1 nach vi schon bekannt ist. Der Startwert für alle Werte von i ist
   % false.
   OK = lists:duplicate(VertexAmount, false),
@@ -114,7 +115,7 @@ iteration(LogPath, Graph, Vertices, OK, Entf, Vorg, Result) ->
 
   % Note: zzz is greater than infinite and seems to be a suitable initial value. Otherwise I would have to take the
   % first value of Entf as min, but I would need to check OK and that
-  {H, Entfh, Vorgh} = ok_min(OK, Entf, zzz, 0, zzz, -1),
+  {H, Entfh} = ok_min(OK, Entf, zzz, 0, zzz),
   VertexH = get(Vertices, H),
   u:log(LogPath, ["H ist: ", util:to_String(H), " mit Entf ", util:to_String(Entf)]),
 
@@ -128,8 +129,8 @@ iteration(LogPath, Graph, Vertices, OK, Entf, Vorg, Result) ->
   ),
   AllTrue = lists:all(fun(Elem) -> Elem == true end, NewOK),
   if
-    AllTrue -> {NewEntf, NewVorg, NewOK};
-    true -> iteration(LogPath, Graph, Vertices, NewOK, NewEntf, NewVorg, [{VertexH, Entfh, Vorgh}])
+    AllTrue -> [{VertexH, Entfh, get(Vorg, H)}|Result];
+    true -> iteration(LogPath, Graph, Vertices, NewOK, NewEntf, NewVorg, [{VertexH, Entfh, get(Vorg, H)}|Result])
   end.
 
 % === Suche unter den Ecken vi mit OKi = false eine Ecke vh mit dem kleinsten Wert von Entfi
