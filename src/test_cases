@@ -21,3 +21,8 @@ Modulname
 
 Graph; Vertexanzahl; Zeit
 name;num;num
+
+Modul	Graph1	Graph2	Graph3	Graph4
+Dijkstra	10	20	30	40
+Dijkstra1	100	150	200	250
+Dijkstra2	1000	1500	2500	4000
