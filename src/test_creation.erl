@@ -18,16 +18,17 @@
 -define(DOT_COMMAND_START, "\"C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe\" -Tpng ").
 -define(PICTURE_TYPE, ".png").
 -define(DOT_TYPE, ".dot").
+-define(MAX_VERTEX_DIGITS, 5).
 
 %% API
 -export([start/1]).
 
 start(VertexAmount) ->
   filelib:ensure_dir(?CUSTOM_GRAPHS_PATH),
-  GraphName = lists:append(?FILE_NAME_BASE, util:to_String(VertexAmount)),
+  GraphName = lists:append(?FILE_NAME_BASE, string:right(integer_to_list(VertexAmount), ?MAX_VERTEX_DIGITS, $0)),
   GraphPath = lists:append([?CUSTOM_GRAPHS_PATH, GraphName, ?OUTPUT_FILE_TYPE]),
   file:delete(GraphPath),
-  gengraph:gengraph(VertexAmount, VertexAmount * 2, 1, VertexAmount, GraphPath),
+  gengraph:gengraph(VertexAmount, VertexAmount * 10, 1, VertexAmount, GraphPath),
   to_picture(GraphName, VertexAmount, VertexAmount * 2).
 
 
