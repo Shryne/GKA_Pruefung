@@ -21,7 +21,7 @@
 
 dijkstra(FileName, StartVertex, d) -> dijkstra_(FileName, StartVertex, d);
 dijkstra(FileName, StartVertex, ud) -> dijkstra_(FileName, StartVertex, ud);
-dijkstra(FileName, StartVertex, _) -> dijkstra_(FileName, StartVertex, nil).
+dijkstra(FileName, StartVertex, _) -> dijkstra_(FileName, StartVertex, d). % Anything else -> directed
 
 dijkstra_(FileName, StartVertex, Variant) ->
   GraphName = graph_name(FileName),
@@ -62,7 +62,7 @@ drop_type(GraphName) -> lists:reverse(GraphName).
 
 % Case: Graph couldn't be loaded. This would result in empty OK, ... lists and there wouldn't be any calculation to be
 % done.
-measured(_, _, _, {{}, [], []}) -> {[], [], []};
+measured(_, _, _, {{}, [], []}) -> [];
 measured(LogPath, MeasurementPath, StartVertex, Graph) ->
   u:log(LogPath, ["Korrekten Graph erhalten"]),
   u:measure(MeasurementPath,

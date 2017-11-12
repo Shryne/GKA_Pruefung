@@ -26,3 +26,12 @@ Modul	Graph1	Graph2	Graph3	Graph4
 Dijkstra	10	20	30	40
 Dijkstra1	100	150	200	250
 Dijkstra2	1000	1500	2500	4000
+
+
+----------------
+Vorgegebene Graphen:
+d_graph_de (18119)
+ud_graph_de (18119)
+graph_03 (11) => [{11, 0, 11}, {22, 8, 33}, {33, 5, 11}, {44, 11, 22}, {55, 7, 33}]
+graph_04 (11) => [{11, 0, 11}, {12, 1... ?
+graph_05 (71) => [{
