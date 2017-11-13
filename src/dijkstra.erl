@@ -82,7 +82,7 @@ startVertexAtFront(Graph, StartVertex) ->
   Vertices = adtgraph:getVertexes(Graph),
   HasVertex = lists:any(fun(Elem) -> Elem == StartVertex end, Vertices),
   if
-    HasVertex -> lists:append([StartVertex], lists:delete(StartVertex, Vertices));
+    HasVertex -> [StartVertex|lists:delete(StartVertex, Vertices)];
     true -> Vertices
   end.
 

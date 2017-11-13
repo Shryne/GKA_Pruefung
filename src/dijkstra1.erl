@@ -10,39 +10,47 @@
 -module(dijkstra1).
 -author("Steven").
 
+-include("definitions.hrl").
+
 %% API
 -compile(export_all).
 
-dijkstra(Filename, _StartVertex, d) ->
-  Graph = to_graph(Filename, d),
-  dijkstra_pre(Graph);
+dijkstra(FileName, StartVertex, d) -> dijkstra_(FileName, StartVertex, d);
+dijkstra(FileName, StartVertex, ud) -> dijkstra_(FileName, StartVertex, ud);
+dijkstra(FileName, StartVertex, _) -> dijkstra_(FileName, StartVertex, d). % Anything else -> directed
 
-dijkstra(Filename, _StartVertex, ud) ->
-  Graph = to_graph(Filename, ud),
-  dijkstra_pre(Graph).
+dijkstra_(FileName, StartVertex, Variant) ->
+  Graph = to_graph(FileName, Variant),
+  Q = pre(Graph, StartVertex),
+  iteration(Graph, Q).
 
 to_graph(FileName, Variant) ->
   adtgraph:importG(FileName, Variant).
 
-dijkstra_pre(Graph) ->
-  [Start|Rest] = adtgraph:getVertexes(Graph),
-  Q = [{Start, 0, start}|Rest],
+pre(?EMPTY_GRAPH, _) -> [];
+pre(Graph, StartVertex) ->
+  [Start|Rest] = startVertexAtFront(Graph, StartVertex),
   file:delete("Log"),
-  dijkstra_iteration(Graph, Q, []).
+  [{Start, 0, Start}|Rest].
 
-dijkstra_iteration(_, [], Result) -> Result;
-dijkstra_iteration(Graph, Q, Result) ->
-  u:print(["Iteration"]),
-  u:print(["Q: ", util:to_String(Q)]),
+startVertexAtFront(Graph, StartVertex) ->
+  Vertices = adtgraph:getVertexes(Graph),
+  HasVertex = lists:any(fun(Elem) -> Elem == StartVertex end, Vertices),
+  if
+    HasVertex -> [StartVertex|lists:delete(StartVertex, Vertices)];
+    true -> Vertices
+  end.
+
+iteration(_, []) -> [];
+iteration(Graph, Q) -> iteration_(Graph, Q, []).
+
+
+iteration_(_, [], Result) -> Result;
+iteration_(Graph, Q, Result) ->
   {SmallerQ, {VertH, EntfH, VorgH}} = pop_min(Q),
-  u:print(["VertH: ", VertH]),
-  u:print(["EntfH: ", EntfH]),
-  u:print(["VorgH: ", VorgH]),
 
-  u:print(["SmallerQ: ", util:to_String(SmallerQ)]),
   NewQ = update_distance(Graph, adtgraph:getAdjacent(Graph, VertH), SmallerQ, VertH, EntfH, VorgH),
-  u:print(["NewQ: ", NewQ]),
-  dijkstra_iteration(Graph, NewQ, [{VertH, EntfH, VorgH}|Result]).
+  iteration_(Graph, NewQ, [{VertH, EntfH, VorgH}|Result]).
 
 % An element is needed to be taken as the first min element, because otherwise it would be empty and the algorithm would
 % put an empty value into the list when it finds a new min value (and it wouldn't compare them)
@@ -71,8 +79,8 @@ update_distance(Graph, [AdjacentJ|Adjacent], Q, VertH, EntfH, VorgH) ->
 
 pop(List, Elem) -> pop(List, [], Elem).
 
-pop([], Q, _) -> {Q, {nil, -10000000000000, nil}};
-pop([Elem|Rest], Popped, Elem) -> {lists:append(Popped, Rest), as_tuple(Elem)};
+pop([], Q, _) -> {Q, {nil, -10000000000000, nil}}; % Vertex is true based on OK
+pop([Elem|Rest], Popped, Elem) -> {lists:append([Popped, Rest]), as_tuple(Elem)};
 pop([F|Rest], Popped, Elem) -> pop(Rest, [F|Popped], Elem).
 
 as_tuple({Vert, Entf, Vorg}) -> {Vert, Entf, Vorg};

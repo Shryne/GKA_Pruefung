@@ -12,3 +12,5 @@
 -define(GRAPH_ATTR_NAME, weight).
 
 -define(LOGGING_FOLDER, "logging/").
+
+-define(EMPTY_GRAPH, {{}, [], []}).
