@@ -30,7 +30,6 @@ to_graph(FileName, Variant) ->
 pre(?EMPTY_GRAPH, _) -> [];
 pre(Graph, StartVertex) ->
   [Start|Rest] = startVertexAtFront(Graph, StartVertex),
-  file:delete("Log"),
   [{Start, 0, Start}|Rest].
 
 startVertexAtFront(Graph, StartVertex) ->
@@ -66,22 +65,27 @@ pop_min_([Elem|Rest], NewQ, Min) ->
 
 update_distance(_, [], Q, _, _, _) -> Q;
 update_distance(Graph, [AdjacentJ|Adjacent], Q, VertH, EntfH, VorgH) ->
-  {TempQ, {_, EntfJ, VorgJ}} = pop(Q, AdjacentJ),
-  Lhj = adtgraph:getValE(Graph, {VertH, AdjacentJ}, weight),
+  {NewQ, QJ} = pop(Q, AdjacentJ),
+
   if
-    is_atom(Lhj) ->
-      update_distance(Graph, Adjacent, [{AdjacentJ, EntfJ, VorgJ}|TempQ], VertH, EntfH, VorgH);
-    EntfJ > EntfH + Lhj ->
-      update_distance(Graph, Adjacent, [{AdjacentJ, EntfH + Lhj, VertH}|TempQ], VertH, EntfH, VorgH);
-    true ->
-      update_distance(Graph, Adjacent, [{AdjacentJ, EntfJ, VorgJ}|TempQ], VertH, EntfH, VorgH)
+    QJ =/= nil ->
+      {_, EntfJ, VorgJ} = QJ,
+      Lhj = adtgraph:getValE(Graph, {VertH, AdjacentJ}, weight),
+      if
+        is_atom(Lhj) ->
+          update_distance(Graph, Adjacent, [{AdjacentJ, EntfJ, VorgJ}|NewQ], VertH, EntfH, VorgH);
+        EntfJ > EntfH + Lhj ->
+          update_distance(Graph, Adjacent, [{AdjacentJ, EntfH + Lhj, VertH}|NewQ], VertH, EntfH, VorgH);
+        true ->
+          update_distance(Graph, Adjacent, [{AdjacentJ, EntfJ, VorgJ}|NewQ], VertH, EntfH, VorgH)
+      end;
+    true -> update_distance(Graph, Adjacent, NewQ, VertH, EntfH, VorgH)
   end.
+
 
 pop(List, Elem) -> pop(List, [], Elem).
 
-pop([], Q, _) -> {Q, {nil, -10000000000000, nil}}; % Vertex is true based on OK
-pop([Elem|Rest], Popped, Elem) -> {lists:append([Popped, Rest]), as_tuple(Elem)};
+pop([], Q, _) -> {Q, nil}; % Vertex is true based on OK
+pop([{Elem, Entf, Vorg}|Rest], Popped, Elem) -> {lists:append(Popped, Rest), {Elem, Entf, Vorg}};
+pop([Elem|Rest], Popped, Elem) -> {lists:append(Popped, Rest), {Elem, infinite, undef}};
 pop([F|Rest], Popped, Elem) -> pop(Rest, [F|Popped], Elem).
-
-as_tuple({Vert, Entf, Vorg}) -> {Vert, Entf, Vorg};
-as_tuple(Vert) -> {Vert, infinite, undef}.

@@ -12,7 +12,7 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
--define(TEST_MODULE_LIST, [dijkstra]).
+-define(TEST_MODULE_LIST, [dijkstra, dijkstra1]).
 
 
 illegal_input_test_() ->
