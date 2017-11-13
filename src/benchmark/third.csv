@@ -1,0 +1,16 @@
+Benchmark
+
+Module;graph_00010.graph;graph_00020.graph;graph_00030.graph;graph_00040.graph;graph_00050.graph;graph_00060.graph;graph_00070.graph;graph_00080.graph;graph_00090.graph;graph_00100.graph;graph_00150.graph;graph_00200.graph;graph_00250.graph;graph_00300.graph;graph_00350.graph;graph_00400.graph;graph_00450.graph;graph_00500.graph;graph_00600.graph;graph_00700.graph;graph_00800.graph;graph_00900.graph;graph_01000.graph
+"graph_00010.graph";0;0;0
+"graph_00020.graph";0;0;15
+"graph_00030.graph";0;0;0
+"graph_00040.graph";0;0;32
+"graph_00050.graph";0;15;31
+"graph_00060.graph";0;16;62
+"graph_00070.graph";0;16;109
+"graph_00080.graph";15;0;219
+"graph_00090.graph";16;15;375
+"graph_00100.graph";47;15;579
+"graph_00150.graph";109;94;2719
+"graph_00200.graph";234;203;8391
+"graph_00250.graph";500;515;20672

@@ -15,6 +15,10 @@
 %% API
 -compile(export_all).
 
+dijkstra(Graph, StartVertex) ->
+  Q = pre(Graph, StartVertex),
+  iteration(Graph, Q).
+
 dijkstra(FileName, StartVertex, d) -> dijkstra_(FileName, StartVertex, d);
 dijkstra(FileName, StartVertex, ud) -> dijkstra_(FileName, StartVertex, ud);
 dijkstra(FileName, StartVertex, _) -> dijkstra_(FileName, StartVertex, d). % Anything else -> directed

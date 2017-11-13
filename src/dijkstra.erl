@@ -17,7 +17,13 @@
 -define(LOG_FILE_TYPE, ".log").
 -define(INPUT_TYPE, "\\.graph").
 
--export([dijkstra/3]).
+-export([dijkstra/3, dijkstra/2]).
+
+dijkstra(Graph, StartVertex) ->
+  GraphName = "undef",
+  MeasurementPath = lists:append([?MEASUREMENT_FOLDERS, GraphName, ?MEASUREMENT_FILE_TYPE]),
+  LogPath = lists:append([?LOG_FOLDERS, GraphName, ?LOG_FILE_TYPE]),
+  measured(LogPath, MeasurementPath, StartVertex, Graph).
 
 dijkstra(FileName, StartVertex, d) -> dijkstra_(FileName, StartVertex, d);
 dijkstra(FileName, StartVertex, ud) -> dijkstra_(FileName, StartVertex, ud);
@@ -31,17 +37,7 @@ dijkstra_(FileName, StartVertex, Variant) ->
   filelib:ensure_dir(?LOG_FOLDERS),
   file:delete(LogPath),
   file:delete(MeasurementPath),
-
-  u:log(LogPath, [
-    "Dijkstra start mit FileName: ", util:to_String(FileName),
-    " StartVertex: ", util:to_String(StartVertex),
-    " Variant: ", util:to_String(Variant),
-    " Graphname: ", util:to_String(GraphName)
-  ]
-  ),
   Graph = adtgraph:importG(FileName, Variant),
-
-  u:log(LogPath, ["Folgenden Graph geladen:\n", util:list2string(adtgraph:getVertexes(Graph))]),
   measured(LogPath, MeasurementPath, StartVertex, Graph).
 
 % Extracts the name of the graph from the file name.
@@ -64,10 +60,8 @@ drop_type(GraphName) -> lists:reverse(GraphName).
 % done.
 measured(_, _, _, {{}, [], []}) -> [];
 measured(LogPath, MeasurementPath, StartVertex, Graph) ->
-  u:log(LogPath, ["Korrekten Graph erhalten"]),
   u:measure(MeasurementPath,
     fun() ->
-      u:log(LogPath, ["Starte Messung"]),
       % I swap the StartVertex from pos x to the front, because that way it's much easier to create the
       % OK... lists with the special initialization for the StartVertex. If the StartVertex isn't inside
       % the graph, the first Vertex of the Graph is assumed to be the StartVertex
@@ -89,8 +83,7 @@ startVertexAtFront(Graph, StartVertex) ->
 % The StartVertex must be the head of the given list, because the other lists depend on it and they put the
 % initialization for it in the head, too.
 % === Vorbereitung
-preparation(LogPath, [Start|Rest]) ->
-  u:log(LogPath, ["--------------PRE--------------"]),
+preparation(_, [Start|Rest]) ->
   VertexAmount = length(Rest) + 1,
 
   % === Entfi gibt die bisher festgestellte kürzeste Entfernung von v1 nach vi an. Der Startwert ist 0 für i = 1 und inf
@@ -103,27 +96,15 @@ preparation(LogPath, [Start|Rest]) ->
   % === OKi gibt an, ob die kürzeste Entfernung von v1 nach vi schon bekannt ist. Der Startwert für alle Werte von i ist
   % false.
   OK = lists:duplicate(VertexAmount, false),
-
-  u:log(LogPath, ["Graph enthält ", util:to_String(VertexAmount), " Vertices"]),
   {OK, Entf, Vorg}.
 
 iteration(LogPath, Graph, Vertices, OK, Entf, Vorg, Result) ->
-  u:log(LogPath, ["--------------ITER--------------"]),
-  u:log(LogPath, ["OK: ", u:toString(OK)]),
-  u:log(LogPath, ["Entf: ", u:toString(Entf)]),
-  u:log(LogPath, ["Vorg: ", u:toString(Vorg)]),
-
   % Note: zzz is greater than infinite and seems to be a suitable initial value. Otherwise I would have to take the
   % first value of Entf as min, but I would need to check OK and that
   {H, Entfh} = ok_min(OK, Entf, zzz, 0, zzz),
   VertexH = get(Vertices, H),
-  u:log(LogPath, ["H ist: ", util:to_String(H), " mit Entf ", util:to_String(Entf)]),
-
-  u:log(LogPath, ["Setze OK für neues H auf true"]),
   NewOK = ok_true(OK, [], H, 0),
-  u:log(LogPath, ["Neues OK: ", u:toString(NewOK)]),
 
-  u:log(LogPath, ["dijkstra_distance"]),
   {NewEntf, NewVorg} = distance(LogPath, Graph, Vertices,
     adtgraph:getAdjacent(Graph, get(Vertices, H)), Entf, Vorg, OK, VertexH, Entfh
   ),
@@ -151,17 +132,12 @@ ok_true([F|Rest], Result, H, I) -> ok_true(Rest, [F|Result], H, I + 1).
 distance(_, _, _, [], Entf, Vorg, _, _, _) -> {Entf, Vorg};
 distance(LogPath, Graph, Vertices, [VertexI|Adjacent], Entf, Vorg, OK, VertexH, Entfh) ->
   AdjacentIndex = index_of(VertexI, Vertices),
-  u:log(LogPath, ["AdjacentIndex: ", util:to_String(AdjacentIndex)]),
-  u:log(LogPath, ["Vertices: ", u:toString(Vertices)]),
   OKElem = get(OK, AdjacentIndex),
 
   if
     OKElem == false ->
       Lhj = adtgraph:getValE(Graph, {VertexH, VertexI}, weight),
       Entfj = get(Entf, AdjacentIndex),
-      u:log(LogPath, ["Lhj[", util:to_String(VertexH), " -> ", util:to_String(VertexI), "]: ", util:to_String(Lhj)]),
-      u:log(LogPath, ["Entfj: ", util:to_String(Entfj)]),
-      u:log(LogPath, ["Entfh: ", util:to_String(Entfh)]),
       if
         is_atom(Lhj) ->
           distance(LogPath, Graph, Vertices, Adjacent, Entf, Vorg, OK, VertexH, Entfh);
@@ -171,8 +147,6 @@ distance(LogPath, Graph, Vertices, [VertexI|Adjacent], Entf, Vorg, OK, VertexH, 
           NewEntf = set(Entf, AdjacentIndex, Entfh + Lhj),
           % === Setze Vorgj := h
           NewVorg = set(Vorg, AdjacentIndex, VertexH),
-          u:log(LogPath, ["NewEntf: ", u:toString(NewEntf)]),
-          u:log(LogPath, ["NewVorg: ", u:toString(NewVorg)]),
           distance(LogPath, Graph, Vertices, Adjacent, NewEntf, NewVorg, OK, VertexH, Entfh);
         true ->
           distance(LogPath, Graph, Vertices, Adjacent, Entf, Vorg, OK, VertexH, Entfh)
