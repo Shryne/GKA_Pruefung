@@ -21,22 +21,24 @@ bellmannford(FileName, StartVertex, _) -> bellmannford_(FileName, StartVertex, d
 
 bellmannford_(FileName, StartVertex, Variant) ->
   Graph = adtgraph:importG(FileName, Variant),
-  Vertices = startVertexAtFront(Graph, StartVertex),
-  Q = pre(Vertices),
-  NewQ = iteration(Graph, Q),
-  check(FileName, Graph, NewQ),
-  NewQ.
-
-pre([]) -> [];
-pre([Start|Rest]) -> [{Start, 0, Start}|Rest].
-
-startVertexAtFront(Graph, StartVertex) ->
   Vertices = adtgraph:getVertexes(Graph),
   HasVertex = lists:any(fun(Elem) -> Elem == StartVertex end, Vertices),
   if
-    HasVertex -> [StartVertex|lists:delete(StartVertex, Vertices)];
-    true -> Vertices
+    not HasVertex -> [];
+    true ->
+      Q = pre(Vertices, StartVertex),
+      NewQ = iteration(Graph, Q),
+      check(FileName, Graph, NewQ),
+      NewQ
   end.
+
+
+pre([], _) -> [];
+pre(Vertices, StartVertex) ->
+  [Start|Rest] = startVertexAtFront(Vertices, StartVertex),
+  [{Start, 0, Start}|Rest].
+
+startVertexAtFront(Vertices, StartVertex) -> [StartVertex|lists:delete(StartVertex, Vertices)].
 
 iteration(?EMPTY_GRAPH, _) -> [];
 iteration(Graph, Q) -> iteration_(Graph, Q, length(adtgraph:getVertexes(Graph)) - 1).
