@@ -1,13 +1,3 @@
-%%%-------------------------------------------------------------------
-%%% @author Steven
-%%% @copyright (C) 2017, <COMPANY>
-%%% @doc
-%%%
-%%% @end
-%%% Created : 10. Nov 2017 09:47
-%% TODO: dot prints an error for graphs with more than 4 vertices
-
-%%%-------------------------------------------------------------------
 -module(test_creation).
 -author("Steven").
 
@@ -23,6 +13,10 @@
 %% API
 -export([start/2]).
 
+% Creates a *.graph file with the given VertexAmount and Branching. The output folder is defined by ?CUSTUM_GRAPHS_PATH.
+% Old graphs with the same name will be overwritten.
+% This is intended to be an internal file and because of this there are no checks whether the given parameters are
+% valid.
 start(VertexAmount, Branching) ->
   filelib:ensure_dir(?CUSTOM_GRAPHS_PATH),
   GraphName = lists:append(?FILE_NAME_BASE, string:right(integer_to_list(VertexAmount), ?MAX_VERTEX_DIGITS, $0)),
@@ -31,7 +25,7 @@ start(VertexAmount, Branching) ->
   gengraph:gengraph(VertexAmount, Branching, 1, VertexAmount, GraphPath),
   to_picture(GraphName, VertexAmount, VertexAmount * 2).
 
-
+% Creates a .png file based on the given graph, if it is small enough.
 to_picture(GraphName, VertexAmount, Branching)
   when Branching * VertexAmount =< ?TO_PICTURE_MAX_COMPLEXITY ->
 

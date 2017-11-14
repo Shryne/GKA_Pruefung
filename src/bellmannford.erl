@@ -1,11 +1,3 @@
-%%%-------------------------------------------------------------------
-%%% @author Steven
-%%% @copyright (C) 2017, <COMPANY>
-%%% @doc
-%%%
-%%% @end
-%%% Created : 13. Nov 2017 20:39
-%%%-------------------------------------------------------------------
 -module(bellmannford).
 -author("Steven").
 
@@ -70,6 +62,7 @@ check_(GraphPath, Graph, Q, [{Vi, Entfi, _}|Rest]) ->
   if
     HasNegativeCircle ->
       LogPath = lists:append([?LOGGING_FOLDER, "bellmannford_negative_circle.log"]),
+      filelib:ensure_dir(?LOGGING_FOLDER),
       file:delete(LogPath),
       file:write_file(LogPath, [GraphPath]), % necessary for the tests. Otherwise I would need to wait until the util
       % thread would've wrote the file
