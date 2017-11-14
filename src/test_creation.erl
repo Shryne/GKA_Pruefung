@@ -11,7 +11,7 @@
 -module(test_creation).
 -author("Steven").
 
--define(CUSTOM_GRAPHS_PATH, "viele_kanten/").
+-define(CUSTOM_GRAPHS_PATH, "viele_ecken/").
 -define(FILE_NAME_BASE, "graph_").
 -define(OUTPUT_FILE_TYPE, ".graph").
 -define(TO_PICTURE_MAX_COMPLEXITY, 100).
@@ -21,14 +21,14 @@
 -define(MAX_VERTEX_DIGITS, 5).
 
 %% API
--export([start/1]).
+-export([start/2]).
 
-start(VertexAmount) ->
+start(VertexAmount, Branching) ->
   filelib:ensure_dir(?CUSTOM_GRAPHS_PATH),
   GraphName = lists:append(?FILE_NAME_BASE, string:right(integer_to_list(VertexAmount), ?MAX_VERTEX_DIGITS, $0)),
   GraphPath = lists:append([?CUSTOM_GRAPHS_PATH, GraphName, ?OUTPUT_FILE_TYPE]),
   file:delete(GraphPath),
-  gengraph:gengraph(VertexAmount, 100, 1, VertexAmount, GraphPath),
+  gengraph:gengraph(VertexAmount, Branching, 1, VertexAmount, GraphPath),
   to_picture(GraphName, VertexAmount, VertexAmount * 2).
 
 

@@ -5,7 +5,6 @@
 %%%
 %%% @end
 %%% Created : 11. Nov 2017 17:42
-%%% TODO: Shorten graph name to number (edge amount would probably be the best)
 %%%-------------------------------------------------------------------
 -module(benchmark).
 -author("Steven").
@@ -17,20 +16,26 @@
 -define(GRAPH_FILE_TYPE, ".graph").
 -define(OUTPUT_DELIMITER, ";").
 
+-define(MODULES, ["dijkstra", "bellmannford"]).
+-define(FUNCTIONS, [
+  fun(Graph, StartVertex) -> dijkstra3:dijkstra(Graph, StartVertex) end,
+  fun(Graph, StartVertex) -> bellmannford:bellmannford(Graph, StartVertex) end
+]).
+
 %% API
 %-export([start/3]).
 -compile(export_all).
 
 % Run: benchmark:start("benchmark", [dijkstra, dijkstra1, dijkstra2, dijkstra3, dijkstra3], "eigene_graphen/").
-start(FileName, Modules, Folder) ->
+start(FileName, Folder, Variant) ->
   filelib:ensure_dir(?BENCHMARK_FOLDER),
   BenchmarkFile = lists:append([?BENCHMARK_FOLDER, FileName, ?BENCHMARK_FILE_TYPE]),
   file:delete(BenchmarkFile),
   u:log(BenchmarkFile, ["Benchmark\n"]),
 
   Graphs = importGraphsSorted(Folder),
-  logHeader(BenchmarkFile, Modules),
-  module_benchmarks(BenchmarkFile, Modules, Graphs, Folder).
+  logHeader(BenchmarkFile, ?MODULES),
+  module_benchmarks(BenchmarkFile, ?FUNCTIONS, Graphs, Folder, Variant).
 
 % Returns all Graphs from the given folder in a sorted list. The sorting is based on a simple comparison of the file
 % names and because of this it's important to use numbers with the same amount of digits. Otherwise comparing graph_3
@@ -53,20 +58,21 @@ logHeader_(_, [], Result) -> Result;
 logHeader_(BenchmarkFile, [GraphName|Rest], Result) ->
   logHeader_(BenchmarkFile, Rest, lists:append([Result, ?OUTPUT_DELIMITER, GraphName])).
 
-module_benchmarks(_, [], _, _) -> benchmark_done;
-module_benchmarks(BenchmarkFile, Modules, [GraphFile|RestGraphs], Folder) ->
+module_benchmarks(_, _, [], _, _) -> benchmark_done;
+module_benchmarks(BenchmarkFile, Modules, [GraphFile|RestGraphs], Folder, Variant) ->
   GraphPath = lists:append([Folder, GraphFile]),
-  Graph = adtgraph:importG(GraphPath, ud),
-  u:log(BenchmarkFile, lists:append([util:to_String(GraphFile), module_benchmark(Modules, Graph, Folder, [])])),
-  module_benchmarks(BenchmarkFile, Modules, RestGraphs, Folder).
+  Graph = adtgraph:importG(GraphPath, Variant),
+  {Result, ModulesDone} = module_benchmark(Modules, [], Graph, Folder, []),
+  u:log(BenchmarkFile, lists:append([util:to_String(GraphFile), Result])),
+  module_benchmarks(BenchmarkFile, ModulesDone, RestGraphs, Folder, Variant).
 
-module_benchmark([], _, _, Result) -> Result;
-module_benchmark([Module|RestModules], Graph, Folder, Result) ->
-
+module_benchmark([], ModulesDone, _, _, Result) -> {Result, lists:reverse(ModulesDone)};
+module_benchmark([Module|RestModules], ModulesDone, Graph, Folder, Result) ->
   StartTime = erlang:system_time(?TIME_FORMAT),
-  Module:dijkstra(Graph, 1),
+  Module(Graph, 1),
   TimeNeeded = erlang:system_time(?TIME_FORMAT) - StartTime,
   if
-    TimeNeeded > ?MAX_TIME_PER_BENCHMARK -> lists:append([Result, ";", util:to_String(TimeNeeded)]);
-    true -> module_benchmark(RestModules, Graph, Folder, lists:append([Result, ";", util:to_String(TimeNeeded)]))
+    TimeNeeded > ?MAX_TIME_PER_BENCHMARK ->
+      module_benchmark(RestModules, ModulesDone, Graph, Folder, lists:append([Result, ";", util:to_String(TimeNeeded)]));
+    true -> module_benchmark(RestModules, [Module|ModulesDone], Graph, Folder, lists:append([Result, ";", util:to_String(TimeNeeded)]))
   end.
