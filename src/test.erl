@@ -79,3 +79,9 @@ bellmannford_test_() ->
       lists:sort(bellmannford:bellmannford("graphen/graph_04.graph", 11, d))
     )
   ].
+
+bellmannford_test() ->
+  bellmannford:bellmannford("graphen/graph_05.graph", 71, d),
+  {ok, Content} = file:read_file("logging/bellmannford_negative_circle.log"),
+  Result = erlang:binary_to_list(Content),
+  ?_assertEqual("graphen/graph_05.graph", Result).

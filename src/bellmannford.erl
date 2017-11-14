@@ -54,12 +54,13 @@ check(GraphPath, Graph, Q) -> check_(GraphPath, Graph, Q, Q).
 
 check_(_, _, Q, []) -> Q;
 check_(GraphPath, Graph, Q, [{Vi, Entfi, _}|Rest]) ->
-  %io:fwrite(lists:append("Q: ", util:to_String(Q), "\n")),
   HasNegativeCircle = check_negative_circle(Graph, Vi, Entfi, Q, adtgraph:getAdjacent(Graph, Vi)),
   if
     HasNegativeCircle ->
-      util:logging(lists:append([?LOGGING_FOLDER, "bellmannford_negative_circle.log"]),
-        lists:append(["Negative circle found on ", GraphPath])),
+      LogPath = lists:append([?LOGGING_FOLDER, "bellmannford_negative_circle.log"]),
+      file:delete(LogPath),
+      file:write_file(LogPath, [GraphPath]), % necessary for the tests. Otherwise I would need to wait until the util
+      % thread would've wrote the file
       Q;
     true -> check_(GraphPath, Graph, Q, Rest)
   end.
@@ -96,7 +97,7 @@ check_negative_circle(Graph, Vi, Entfi, Q, [Vj|Rest]) ->
   if
     Entfj > Entfi + Lij -> true;
     true ->
-      distance_update(Graph, Vi, Entfi, Q, Rest)
+      check_negative_circle(Graph, Vi, Entfi, Q, Rest)
   end.
 
 
