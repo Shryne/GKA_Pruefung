@@ -17,7 +17,18 @@
 -define(LOG_FILE_TYPE, ".log").
 -define(INPUT_TYPE, "\\.graph").
 
--export([dijkstra/3, dijkstra/2]).
+-export([dijkstra/3, dijkstra/2, test/0]).
+
+test() ->
+  Graph = adtgraph:importG("eigene_graphen/graph_00100.graph", ud),
+  A = erlang:system_time(millisecond),
+  test_(Graph, 100),
+  erlang:system_time(millisecond) - A.
+
+test_(_, 0) -> done;
+test_(Graph, C) ->
+  adtgraph:getVertexes(Graph),
+  test_(Graph, C - 1).
 
 dijkstra(Graph, StartVertex) ->
   GraphName = "undef",

@@ -58,7 +58,7 @@ iteration_(Graph, Q, Result) ->
 % An element is needed to be taken as the first min element, because otherwise it would be empty and the algorithm would
 % put an empty value into the list when it finds a new min value (and it wouldn't compare them)
 pop_min([{F1, F2, F3}|Rest]) -> pop_min_(Rest, [], {F1, F2, F3});
-pop_min([F|Rest]) -> pop_min_(Rest, [], {infinite, F, undef}).
+pop_min([F|Rest]) -> pop_min_(Rest, [], {F, infinite, undef}).
 
 pop_min_([], NewQ, Min) -> {NewQ, Min};
 pop_min_([{Vertex, Entf, Vorg}|Rest], NewQ, {OldV, OldEntf, OldVorg})
@@ -66,6 +66,9 @@ pop_min_([{Vertex, Entf, Vorg}|Rest], NewQ, {OldV, OldEntf, OldVorg})
   pop_min_(Rest, [{OldV, OldEntf, OldVorg}|NewQ], {Vertex, Entf, Vorg});
 pop_min_([Elem|Rest], NewQ, Min) ->
   pop_min_(Rest, [Elem|NewQ], Min).
+
+to_q_tuple({_, _, _} = F) -> F;
+to_q_tuple(F) -> {F, infinite, undef}.
 
 update_distance(_, [], Q, _, _, _) -> Q;
 update_distance(Graph, [AdjacentJ|Adjacent], Q, VertH, EntfH, VorgH) ->
