@@ -1,0 +1,40 @@
+Zum starten von dijkstra:
+
+c(dijkstra).
+dijkstra:dijkstra(<GraphFileName>, <StartVertex> <d|ud>).
+
+z.B. dijkstra:dijkstra("graphen/graph_03.graph", 11, d).
+
+Zum starten von bellmannford:
+
+c(bellmannford).
+bellmannford:bellmannford(<GraphFileName>, <StartVertex> <d|ud>).
+
+z.B bellmannford:bellmannford("graphen/graph_03.graph", 11, d).
+
+
+
+
+Zum starten der Tests:
+c(test).
+
+test:test().
+
+
+
+Zum Erstellen von zusätzlichen Graphen für Benchmarks:
+c(test_creation).
+
+test_creation:start(<VertexAmount>, <Branching>).
+
+z.B. test_creation:start(10, 5).
+
+Außerdem kann in test_creation der Ausgabeordner in CUSTOM_GRAPHS_PATH geändert werden.
+
+
+Zum starten der Benchmarks:
+c(benchmark).
+
+benchmark:start(<FileName>, <Folder>, <d|ud>).
+
+z.B. benchmark:start("meine_benchmarks", "meine_graphen/", d). (Der Slash bei "meine_graphen" ist wichtig!

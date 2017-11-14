@@ -10,7 +10,7 @@
 
 -define(MODULES, ["dijkstra", "bellmannford"]).
 -define(FUNCTIONS, [
-  fun(Graph, StartVertex) -> dijkstra3:dijkstra(Graph, StartVertex) end,
+  fun(Graph, StartVertex) -> dijkstra:dijkstra(Graph, StartVertex) end,
   fun(Graph, StartVertex) -> bellmannford:bellmannford(Graph, StartVertex) end
 ]).
 
@@ -19,6 +19,7 @@
 -compile(export_all).
 
 % Run: benchmark:start("benchmark", [dijkstra, dijkstra1, dijkstra2, dijkstra3, dijkstra3], "eigene_graphen/").
+% Imports all graphs from the given folder and runs the algorithms on them. The results are stored in a csv file.
 start(FileName, Folder, Variant) ->
   filelib:ensure_dir(?BENCHMARK_FOLDER),
   BenchmarkFile = lists:append([?BENCHMARK_FOLDER, FileName, ?BENCHMARK_FILE_TYPE]),
@@ -40,8 +41,7 @@ importGraphsSorted(Folder) ->
     lists:sort(fun(A, B) -> A < B end, DataInFolder)
   ).
 
-% Prints the header into the file (the top line of the table). The GraphNames should be sorted.
-% Format: Modul; graph_1; graph_2; graph_3; ...\n
+% Prints the header into the file (the top line of the table).
 logHeader(_, []) -> nil;
 logHeader(BenchmarkFile, [Module|Rest]) ->
   u:log(BenchmarkFile, ["Module", ?OUTPUT_DELIMITER, Module, logHeader_(BenchmarkFile, Rest, [])]).

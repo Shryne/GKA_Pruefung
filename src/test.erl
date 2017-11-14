@@ -7,8 +7,7 @@
 
 -define(TEST_MODULE_LIST,
   [
-    %fun(FileName, StartVertex, Variant) -> dijkstra:dijkstra(FileName, StartVertex, Variant) end
-    fun(FileName, StartVertex, Variant) -> dijkstra3:dijkstra(FileName, StartVertex, Variant) end,
+    fun(FileName, StartVertex, Variant) -> dijkstra:dijkstra(FileName, StartVertex, Variant) end,
     fun(FileName, StartVertex, Variant) -> bellmannford:bellmannford(FileName, StartVertex, Variant) end
   ]
 ).
@@ -58,7 +57,7 @@ dijkstra_test_() ->
       % Because there are two ways to 55 with a cost of 7 in the undirected version of graph_03.
       lists:sort([{11, 0, 11}, {12, 1, 11}, {13, 10, 11}, {14, 10, 11}, {15, 20, 13}, {16, 20, 14}, {17, 30, 16},
         {18, 2, 12}, {19, 12, 18}]),
-      lists:sort(dijkstra3:dijkstra("graphen/graph_04.graph", 11, d))
+      lists:sort(dijkstra:dijkstra("graphen/graph_04.graph", 11, d))
     )
   ].
 

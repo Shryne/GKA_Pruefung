@@ -1,4 +1,0 @@
-Benchmark
-
-Modul;graph_00010.graph;graph_00020.graph;graph_00030.graph;graph_00040.graph;graph_00050.graph;graph_00060.graph;graph_00070.graph;graph_00080.graph;graph_00090.graph;graph_00100.graph;graph_00150.graph;graph_00200.graph;graph_00250.graph;graph_00300.graph;graph_00350.graph;graph_00400.graph;graph_00450.graph;graph_00500.graph;graph_00600.graph;graph_00700.graph;graph_00800.graph;graph_00900.graph;graph_01000.graph
-dijkstra;16;47;125;375;625;1156;1969;4500;4891;8625;35921

@@ -1,4 +1,4 @@
--module(dijkstra3).
+-module(dijkstra).
 -author("Steven").
 
 -include("definitions.hrl").
