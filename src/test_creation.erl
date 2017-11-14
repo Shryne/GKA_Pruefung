@@ -11,7 +11,7 @@
 -module(test_creation).
 -author("Steven").
 
--define(CUSTOM_GRAPHS_PATH, "eigene_graphen/").
+-define(CUSTOM_GRAPHS_PATH, "viele_kanten/").
 -define(FILE_NAME_BASE, "graph_").
 -define(OUTPUT_FILE_TYPE, ".graph").
 -define(TO_PICTURE_MAX_COMPLEXITY, 100).
@@ -28,7 +28,7 @@ start(VertexAmount) ->
   GraphName = lists:append(?FILE_NAME_BASE, string:right(integer_to_list(VertexAmount), ?MAX_VERTEX_DIGITS, $0)),
   GraphPath = lists:append([?CUSTOM_GRAPHS_PATH, GraphName, ?OUTPUT_FILE_TYPE]),
   file:delete(GraphPath),
-  gengraph:gengraph(VertexAmount, VertexAmount * 10, 1, VertexAmount, GraphPath),
+  gengraph:gengraph(VertexAmount, 100, 1, VertexAmount, GraphPath),
   to_picture(GraphName, VertexAmount, VertexAmount * 2).
 
 

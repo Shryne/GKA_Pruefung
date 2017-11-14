@@ -13,8 +13,17 @@
 
 -include("definitions.hrl").
 
-%% API
--compile(export_all).
+-export([dijkstra/2, dijkstra/3]).
+
+dijkstra(Graph, StartVertex) ->
+  Vertices = adtgraph:getVertexes(Graph),
+  HasVertex = lists:any(fun(Elem) -> Elem == StartVertex end, Vertices),
+  if
+    not HasVertex -> [];
+    true ->
+      Q = pre(Vertices, StartVertex),
+      iteration(Graph, Q)
+  end.
 
 dijkstra(FileName, StartVertex, d) -> dijkstra_(FileName, StartVertex, d);
 dijkstra(FileName, StartVertex, ud) -> dijkstra_(FileName, StartVertex, ud);
@@ -30,7 +39,6 @@ dijkstra_(FileName, StartVertex, Variant) ->
       Q = pre(Vertices, StartVertex),
       iteration(Graph, Q)
   end.
-
 
 to_graph(FileName, Variant) ->
   adtgraph:importG(FileName, Variant).

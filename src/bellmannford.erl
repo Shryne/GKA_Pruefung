@@ -12,7 +12,19 @@
 -include("definitions.hrl").
 
 %% API
--export([bellmannford/3]).
+-export([bellmannford/2, bellmannford/3]).
+
+bellmannford(Graph, StartVertex) ->
+  Vertices = adtgraph:getVertexes(Graph),
+  HasVertex = lists:any(fun(Elem) -> Elem == StartVertex end, Vertices),
+  if
+    not HasVertex -> [];
+    true ->
+      Q = pre(Vertices, StartVertex),
+      NewQ = iteration(Graph, Q),
+      check("Benchmark", Graph, NewQ),
+      NewQ
+  end.
 
 
 bellmannford(FileName, StartVertex, d) -> bellmannford_(FileName, StartVertex, d);
