@@ -4,6 +4,7 @@
 %% API
 -compile(export_all).
 
+% Custom logging
 log(Name, List) -> util:logging(Name, lists:flatten([List, "\n"])).
 
 % Like util:list2string, but without the "\n" character at the end.

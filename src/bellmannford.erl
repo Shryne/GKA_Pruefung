@@ -36,7 +36,7 @@ bellmannford_(FileName, StartVertex, Variant) ->
       NewQ
   end.
 
-
+% A1
 pre([], _) -> [];
 pre(Vertices, StartVertex) ->
   [Start|Rest] = startVertexAtFront(Vertices, StartVertex),
@@ -47,6 +47,7 @@ startVertexAtFront(Vertices, StartVertex) -> [StartVertex|lists:delete(StartVert
 iteration(?EMPTY_GRAPH, _) -> [];
 iteration(Graph, Q) -> iteration_(Graph, Q, length(adtgraph:getVertexes(Graph)) - 1).
 
+% A2
 iteration_(__, Q, 0) -> Q;
 iteration_(Graph, Q, N) ->
   NewQ = vertices_iteration(Graph, Q),
@@ -56,6 +57,7 @@ iteration_(Graph, Q, N) ->
 check(_, ?EMPTY_GRAPH, _) -> [];
 check(GraphPath, Graph, Q) -> check_(GraphPath, Graph, Q, Q).
 
+% A3
 check_(_, _, Q, []) -> Q;
 check_(GraphPath, Graph, Q, [{Vi, Entfi, _}|Rest]) ->
   HasNegativeCircle = check_negative_circle(Graph, Vi, Entfi, Q, adtgraph:getAdjacent(Graph, Vi)),

@@ -33,6 +33,7 @@ dijkstra_(FileName, StartVertex, Variant) ->
 to_graph(FileName, Variant) ->
   adtgraph:importG(FileName, Variant).
 
+% A1
 pre(?EMPTY_GRAPH, _) -> [];
 pre(Vertices, StartVertex) ->
   [Start|Rest] = startVertexAtFront(Vertices, StartVertex),
@@ -43,10 +44,9 @@ startVertexAtFront(Vertices, StartVertex) -> [StartVertex|lists:delete(StartVert
 iteration(_, []) -> [];
 iteration(Graph, Q) -> iteration_(Graph, Q, []).
 
-
+% A2
 iteration_(_, [], Result) -> Result;
 iteration_(Graph, Q, Result) ->
-  %io:fwrite(lists:append(["Q: ", util:to_String(Q), "\n"])),
   {SmallerQ, {VertH, EntfH, VorgH}} = pop_min(Q),
 
   NewQ = update_distance(Graph, adtgraph:getAdjacent(Graph, VertH), SmallerQ, VertH, EntfH, VorgH),
@@ -68,6 +68,7 @@ update_distance(_, [], Q, _, _, _) -> Q;
 update_distance(Graph, [AdjacentJ|Adjacent], Q, VertH, EntfH, VorgH) ->
   {NewQ, QJ} = pop(Q, AdjacentJ),
 
+  % A3
   if
     QJ =/= nil ->
       {_, EntfJ, VorgJ} = QJ,

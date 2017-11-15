@@ -15,8 +15,7 @@
 ]).
 
 %% API
-%-export([start/3]).
--compile(export_all).
+-export([start/3]).
 
 % Run: benchmark:start("benchmark", [dijkstra, dijkstra1, dijkstra2, dijkstra3, dijkstra3], "eigene_graphen/").
 % Imports all graphs from the given folder and runs the algorithms on them. The results are stored in a csv file.
